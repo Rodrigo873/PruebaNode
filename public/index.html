@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PRUEBA RODRIGO RINCON</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    h1 { font-size: 1.4rem; color: #f8fafc; text-align: center; }
+
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card h2 { font-size: 1rem; color: #94a3b8; text-transform: uppercase; letter-spacing: .05em; }
+
+    label { font-size: .875rem; color: #cbd5e1; }
+
+    input, textarea {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      color: #f1f5f9;
+      padding: 10px 12px;
+      font-size: .9rem;
+      outline: none;
+      transition: border-color .15s;
+    }
+    input:focus, textarea:focus { border-color: #6366f1; }
+    textarea { resize: vertical; min-height: 80px; font-family: inherit; }
+
+    button {
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: .9rem;
+      cursor: pointer;
+      transition: background .15s;
+      align-self: flex-start;
+    }
+    button:hover { background: #4f46e5; }
+    button:disabled { background: #475569; cursor: not-allowed; }
+
+    .status {
+      font-size: .8rem;
+      padding: 8px 12px;
+      border-radius: 6px;
+      display: none;
+    }
+    .status.ok  { background: #14532d; color: #86efac; display: block; }
+    .status.err { background: #450a0a; color: #fca5a5; display: block; }
+
+    .token-badge {
+      font-size: .75rem;
+      padding: 6px 10px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      color: #64748b;
+      word-break: break-all;
+      display: none;
+    }
+    .token-badge.visible { display: block; color: #4ade80; }
+
+    .response-box {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: .875rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      min-height: 60px;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>PRUEBA RODRIGO RINCON</h1>
+
+  <!-- LOGIN -->
+  <div class="card">
+    <h2>Login</h2>
+    <div>
+      <label>Usuario</label>
+<<<<<<< HEAD
+      <input id="loginUser" type="text" autocomplete="off" />
+    </div>
+    <div>
+      <label>Contraseña</label>
+      <input id="loginPass" type="password" />
+=======
+      <input id="loginUser" type="text" value="admin" autocomplete="off" />
+    </div>
+    <div>
+      <label>Contraseña</label>
+      <input id="loginPass" type="password" value="password123" />
+>>>>>>> 0c1da507fdb5c0e13d0551efe664b0e73d68250f
+    </div>
+    <button id="loginBtn">Iniciar sesión</button>
+    <div id="loginStatus" class="status"></div>
+    <div id="tokenBadge" class="token-badge"></div>
+  </div>
+
+  <!-- CHAT -->
+  <div class="card">
+    <h2>Chat</h2>
+    <div>
+      <label>Mensaje</label>
+      <textarea id="chatText" placeholder="Escribe tu pregunta…"></textarea>
+    </div>
+    <button id="chatBtn" disabled>Enviar</button>
+    <div id="chatStatus" class="status"></div>
+    <div id="chatResponse" class="response-box" style="display:none"></div>
+  </div>
+</div>
+
+<script>
+  let jwtToken = null;
+
+  const loginBtn     = document.getElementById('loginBtn');
+  const chatBtn      = document.getElementById('chatBtn');
+  const loginStatus  = document.getElementById('loginStatus');
+  const tokenBadge   = document.getElementById('tokenBadge');
+  const chatStatus   = document.getElementById('chatStatus');
+  const chatResponse = document.getElementById('chatResponse');
+
+  function setStatus(el, message, isOk) {
+    el.textContent = message;
+    el.className = 'status ' + (isOk ? 'ok' : 'err');
+  }
+
+  loginBtn.addEventListener('click', async () => {
+    const username = document.getElementById('loginUser').value.trim();
+    const password = document.getElementById('loginPass').value.trim();
+
+    loginBtn.disabled = true;
+    loginBtn.textContent = 'Conectando…';
+
+    try {
+      const res = await fetch('/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || 'Error desconocido');
+
+      jwtToken = data.token;
+      setStatus(loginStatus, 'Login correcto', true);
+      chatBtn.disabled = false;
+    } catch (err) {
+      setStatus(loginStatus, err.message, false);
+    } finally {
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'Iniciar sesión';
+    }
+  });
+
+  chatBtn.addEventListener('click', async () => {
+    const text = document.getElementById('chatText').value.trim();
+    if (!text) return;
+
+    chatBtn.disabled = true;
+    chatBtn.textContent = 'Enviando…';
+    chatStatus.className = 'status';
+    chatResponse.style.display = 'none';
+
+    try {
+      const res = await fetch('/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${jwtToken}`,
+        },
+        body: JSON.stringify({ text }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || 'Error desconocido');
+
+      chatResponse.textContent = data.reply;
+      chatResponse.style.display = 'block';
+      chatStatus.className = 'status';
+    } catch (err) {
+      setStatus(chatStatus, err.message, false);
+    } finally {
+      chatBtn.disabled = false;
+      chatBtn.textContent = 'Enviar';
+    }
+  });
+
+  document.getElementById('chatText').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey && !chatBtn.disabled) {
+      e.preventDefault();
+      chatBtn.click();
+    }
+  });
+</script>
+</body>
+</html>
