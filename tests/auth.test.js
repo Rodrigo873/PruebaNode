@@ -1,6 +1,13 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import express from 'express';
 import request from 'supertest';
+
+// Deben definirse antes del import dinámico porque auth.js
+// ejecuta bcrypt.hash(process.env.AUTH_PASSWORD) al nivel de módulo
+process.env.JWT_SECRET = 'test_secret_for_vitest';
+process.env.AUTH_USER = 'testuser';
+process.env.AUTH_PASSWORD = 'testpass123';
+process.env.GROQ_API_KEY = 'gsk_test_dummy_key';
 
 const { default: authRoutes } = await import('../src/routes/auth.js');
 const { default: chatRoutes } = await import('../src/routes/chat.js');

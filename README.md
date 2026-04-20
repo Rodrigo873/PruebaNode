@@ -11,7 +11,7 @@ API REST con autenticación JWT y chat potenciado por un modelo de lenguaje (LLM
 
 1. Clona el repositorio:
    ```bash
-   git clone <url-del-repositorio>
+   git clone https://github.com/Rodrigo873/PruebaNode.git
    cd PruebaNode
    ```
 
